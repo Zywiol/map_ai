@@ -1,19 +1,15 @@
 import streamlit as st
 import pandas as pd
 import folium
-from streamlit_folium import folium_static
+from streamlit_folium import folium_static, st_folium
 import openai
 from streamlit_chat import message
 import json
 from geopy.geocoders import Nominatim
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-# Najpierw spróbuj załadować z .env, jeśli nie ma, użyj secrets ze Streamlit
-GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY") or st.secrets["api_keys"]["GOOGLE_MAPS_API_KEY"]
-openai.api_key = os.getenv("OPENAI_API_KEY") or st.secrets["api_keys"]["OPENAI_API_KEY"]
+# Konfiguracja API keys - odczytywanie z secrets Streamlit
+GOOGLE_MAPS_API_KEY = st.secrets["GOOGLE_MAPS_API_KEY"]
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Inicjalizacja stanu sesji
 if 'messages' not in st.session_state:
@@ -31,12 +27,10 @@ if 'messages' not in st.session_state:
          "- Najlepszy czas na zwiedzanie\n"
          "- Informacje o parkingach i komunikacji\n"
          "- Lokalne wydarzenia i festiwale\n\n"
-         "Wybierz do 5 lokalizacji z tabeli po prawej stronie, a pomogę Ci zaplanować najlepszą trasę i dostarczę przydatnych informacji. W czym mogę Ci pomóc?"}
+         "Kliknij na mapie (maksymalnie 5 lokalizacji), a pomogę Ci zaplanować najlepszą trasę i dostarczę przydatnych informacji. W czym mogę Ci pomóc?"}
     ]
-if 'selected_coordinates' not in st.session_state:
-    st.session_state.selected_coordinates = []
-if 'selected_count' not in st.session_state:
-    st.session_state.selected_count = 0
+if 'selected_locations' not in st.session_state:
+    st.session_state.selected_locations = []
 
 # Funkcja do wczytywania danych
 @st.cache_data
@@ -45,8 +39,12 @@ def load_data():
     return df
 
 # Funkcja do generowania odpowiedzi z ChatGPT
-def get_chatgpt_response(prompt, selected_coordinates) -> str:
-    context = f"Selected locations coordinates: {selected_coordinates}\n\n"
+def get_chatgpt_response(prompt, selected_locations) -> str:
+    locations_info = []
+    for loc in selected_locations:
+        locations_info.append(f"{loc['address']} (lat: {loc['lat']}, lon: {loc['lon']})")
+    
+    context = f"Selected locations: {', '.join(locations_info)}\n\n"
     try:
         response = openai.chat.completions.create(
             model="gpt-4",
@@ -131,7 +129,7 @@ with col1:
             # Zapisz wiadomość użytkownika
             st.session_state.messages.append({"role": "user", "content": user_input})
             # Generuj odpowiedź
-            response = get_chatgpt_response(user_input, st.session_state.selected_coordinates)
+            response = get_chatgpt_response(user_input, st.session_state.selected_locations)
             if response:
                 st.session_state.messages.append({"role": "assistant", "content": response})
             else:
@@ -142,56 +140,67 @@ with col1:
             st.rerun()
 
 with col2:
-    # Tabela z checkboxami
-    st.subheader("Locations Table")
+    # Mapa z możliwością zaznaczania
+    st.subheader("Interactive Map")
     
-    # Tworzenie dataframe dla wyświetlenia
-    display_df = df.copy()
-    display_df['Select'] = False
-    
-    # Konwertowanie dataframe na HTML z checkboxami
-    st.write("Wybierz maksymalnie 5 lokalizacji:")
-    
-    # Tworzenie tabeli z checkboxami
-    selected_indices = []
-    for index, row in df.iterrows():
-        col1, col2 = st.columns([0.1, 0.9])
-        with col1:
-            # Sprawdzanie limitu zaznaczonych lokalizacji
-            is_disabled = st.session_state.selected_count >= 5 and f"checkbox_{index}" not in st.session_state
-            checkbox = st.checkbox('', key=f"checkbox_{index}", disabled=is_disabled)
-            if checkbox:
-                selected_indices.append(index)
-                if f"checkbox_{index}" not in st.session_state:
-                    st.session_state.selected_count += 1
-            elif f"checkbox_{index}" in st.session_state and not checkbox:
-                st.session_state.selected_count -= 1
-        with col2:
-            st.write(f"{row['address']}")
-    
-    # Wyświetlenie licznika wybranych lokalizacji
-    st.write(f"Wybrano {st.session_state.selected_count}/5 lokalizacji")
-    
-    # Filtrowanie wybranych lokalizacji
-    selected_rows = df.iloc[selected_indices]
-    
-    if not selected_rows.empty:
-        st.write("Selected Locations:")
-        st.dataframe(selected_rows[['address', 'latitude', 'longitude']])
-        st.session_state.selected_coordinates = selected_rows[['latitude', 'longitude']].values.tolist()
-
-# Mapa na dole
-st.subheader("Map")
-map_container = st.container()
-with map_container:
+    # Tworzenie mapy
     m = folium.Map(location=[50.0, 19.0], zoom_start=4)
     
     # Dodawanie markerów
     for idx, row in df.iterrows():
+        location = [row['latitude'], row['longitude']]
+        is_selected = any(loc['lat'] == location[0] and loc['lon'] == location[1] 
+                         for loc in st.session_state.selected_locations)
+        
+        # Prosty popup z nazwą lokalizacji
+        popup_text = row['address']
+        
         folium.Marker(
-            [row['latitude'], row['longitude']],
-            popup=row['address'],
-            icon=folium.Icon(color='red' if idx in selected_indices else 'blue')
+            location,
+            popup=popup_text,
+            icon=folium.Icon(color='red' if is_selected else 'blue'),
         ).add_to(m)
     
-    folium_static(m)
+    # Wyświetlenie mapy
+    map_data = st_folium(m, width=800, height=500)
+    
+    # Obsługa kliknięć na mapie
+    if map_data is not None and 'last_clicked' in map_data:
+        clicked = map_data['last_clicked']
+        if clicked is not None:
+            lat, lon = clicked['lat'], clicked['lng']
+            # Znajdź najbliższą lokalizację z naszej bazy
+            df['distance'] = ((df['latitude'] - lat)**2 + (df['longitude'] - lon)**2)**0.5
+            nearest = df.iloc[df['distance'].argmin()]
+            
+            # Sprawdź czy lokalizacja jest już wybrana
+            is_selected = any(loc['lat'] == nearest['latitude'] and loc['lon'] == nearest['longitude'] 
+                            for loc in st.session_state.selected_locations)
+            
+            if not is_selected and len(st.session_state.selected_locations) < 5:
+                st.session_state.selected_locations.append({
+                    'address': nearest['address'],
+                    'lat': nearest['latitude'],
+                    'lon': nearest['longitude']
+                })
+            elif is_selected:
+                st.session_state.selected_locations = [
+                    loc for loc in st.session_state.selected_locations 
+                    if not (loc['lat'] == nearest['latitude'] and loc['lon'] == nearest['longitude'])
+                ]
+    
+    # Wyświetlenie wybranych lokalizacji z przyciskami do usuwania
+    st.write(f"Wybrano {len(st.session_state.selected_locations)}/5 lokalizacji:")
+    
+    # Tworzymy nową listę do przechowywania lokalizacji po usunięciach
+    locations_to_keep = st.session_state.selected_locations.copy()
+    
+    for i, loc in enumerate(st.session_state.selected_locations):
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            st.write(f"📍 {loc['address']}")
+        with col2:
+            if st.button("Usuń", key=f"remove_{i}"):
+                locations_to_keep.remove(loc)
+                st.session_state.selected_locations = locations_to_keep
+                st.rerun()
