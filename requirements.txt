@@ -1,0 +1,8 @@
+streamlit
+pandas
+folium
+streamlit-folium
+openai
+streamlit-chat
+geopy
+dotenv
