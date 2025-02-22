@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Konfiguracja API keys
-GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Najpierw spróbuj załadować z .env, jeśli nie ma, użyj secrets ze Streamlit
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY") or st.secrets["api_keys"]["GOOGLE_MAPS_API_KEY"]
+openai.api_key = os.getenv("OPENAI_API_KEY") or st.secrets["api_keys"]["OPENAI_API_KEY"]
 
 # Inicjalizacja stanu sesji
 if 'messages' not in st.session_state:
