@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import folium
-from streamlit_folium import folium_static, st_folium
+from streamlit_folium import st_folium
 import openai
 from streamlit_chat import message
 import json
@@ -140,55 +140,6 @@ with col1:
             st.rerun()
 
 with col2:
-    # Mapa z możliwością zaznaczania
-    st.subheader("Interactive Map")
-    
-    # Tworzenie mapy
-    m = folium.Map(location=[50.0, 19.0], zoom_start=4)
-    
-    # Dodawanie markerów
-    for idx, row in df.iterrows():
-        location = [row['latitude'], row['longitude']]
-        is_selected = any(loc['lat'] == location[0] and loc['lon'] == location[1] 
-                         for loc in st.session_state.selected_locations)
-        
-        # Prosty popup z nazwą lokalizacji
-        popup_text = row['address']
-        
-        folium.Marker(
-            location,
-            popup=popup_text,
-            icon=folium.Icon(color='red' if is_selected else 'blue'),
-        ).add_to(m)
-    
-    # Wyświetlenie mapy
-    map_data = st_folium(m, width=800, height=500)
-    
-    # Obsługa kliknięć na mapie
-    if map_data is not None and 'last_clicked' in map_data:
-        clicked = map_data['last_clicked']
-        if clicked is not None:
-            lat, lon = clicked['lat'], clicked['lng']
-            # Znajdź najbliższą lokalizację z naszej bazy
-            df['distance'] = ((df['latitude'] - lat)**2 + (df['longitude'] - lon)**2)**0.5
-            nearest = df.iloc[df['distance'].argmin()]
-            
-            # Sprawdź czy lokalizacja jest już wybrana
-            is_selected = any(loc['lat'] == nearest['latitude'] and loc['lon'] == nearest['longitude'] 
-                            for loc in st.session_state.selected_locations)
-            
-            if not is_selected and len(st.session_state.selected_locations) < 5:
-                st.session_state.selected_locations.append({
-                    'address': nearest['address'],
-                    'lat': nearest['latitude'],
-                    'lon': nearest['longitude']
-                })
-            elif is_selected:
-                st.session_state.selected_locations = [
-                    loc for loc in st.session_state.selected_locations 
-                    if not (loc['lat'] == nearest['latitude'] and loc['lon'] == nearest['longitude'])
-                ]
-    
     # Wyświetlenie wybranych lokalizacji z przyciskami do usuwania
     st.write(f"Wybrano {len(st.session_state.selected_locations)}/5 lokalizacji:")
     
@@ -204,3 +155,61 @@ with col2:
                 locations_to_keep.remove(loc)
                 st.session_state.selected_locations = locations_to_keep
                 st.rerun()
+
+    # Mapa z możliwością zaznaczania
+    st.subheader("Interactive Map")
+    
+    # Tworzenie mapy
+    m = folium.Map(location=[50.0, 19.0], zoom_start=4)
+    
+    # Dodawanie markerów
+    for idx, row in df.iterrows():
+        location = [row['latitude'], row['longitude']]
+        is_selected = any(loc['lat'] == location[0] and loc['lon'] == location[1] 
+                         for loc in st.session_state.selected_locations)
+        
+        folium.Marker(
+            location,
+            popup=row['address'],
+            icon=folium.Icon(color='red' if is_selected else 'blue'),
+        ).add_to(m)
+    
+    # Wyświetlenie mapy z możliwością interakcji
+    map_data = st_folium(m, width=800, height=500, key="map")
+    
+    # Obsługa kliknięć na mapie
+    if map_data is not None and 'last_object_clicked' in map_data:
+        clicked = map_data['last_object_clicked']
+        if clicked is not None:
+            lat, lon = clicked['lat'], clicked['lng']
+            # Sprawdź czy kliknięto w marker
+            clicked_location = df[
+                (df['latitude'].round(6) == round(lat, 6)) & 
+                (df['longitude'].round(6) == round(lon, 6))
+            ]
+            
+            if not clicked_location.empty:
+                loc_data = clicked_location.iloc[0]
+                # Sprawdź czy lokalizacja jest już wybrana
+                is_selected = any(
+                    loc['lat'] == loc_data['latitude'] and 
+                    loc['lon'] == loc_data['longitude'] 
+                    for loc in st.session_state.selected_locations
+                )
+                
+                if not is_selected and len(st.session_state.selected_locations) < 5:
+                    # Dodaj lokalizację
+                    st.session_state.selected_locations.append({
+                        'address': loc_data['address'],
+                        'lat': loc_data['latitude'],
+                        'lon': loc_data['longitude']
+                    })
+                    st.rerun()
+                elif is_selected:
+                    # Usuń lokalizację
+                    st.session_state.selected_locations = [
+                        loc for loc in st.session_state.selected_locations 
+                        if not (loc['lat'] == loc_data['latitude'] and 
+                               loc['lon'] == loc_data['longitude'])
+                    ]
+                    st.rerun()
