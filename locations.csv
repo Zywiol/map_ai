@@ -1,16 +1,31 @@
-﻿address;latitude;longitude
-Warsaw, Poland - Old Town Market Place;52.2495;21.0124
-Paris, France - Eiffel Tower;48.8584;2.2945
-Rome, Italy - Colosseum;41.8902;12.4922
-Barcelona, Spain - Sagrada Familia;41.4036;2.1744
-Amsterdam, Netherlands - Dam Square;52.3731;4.8927
-Prague, Czech Republic - Charles Bridge;50.0865;14.4114
-Vienna, Austria - Schönbrunn Palace;48.1855;16.3120
-Berlin, Germany - Brandenburg Gate;52.5163;13.3777
-Budapest, Hungary - Parliament Building;47.5006;19.0456
-Copenhagen, Denmark - Nyhavn;55.6797;12.5882
-Stockholm, Sweden - Gamla Stan;59.3251;18.0710
-Lisbon, Portugal - Belém Tower;38.6916;-9.2159
-Athens, Greece - Acropolis;37.9715;23.7257
-Dublin, Ireland - Trinity College;53.3439;-6.2529
-Brussels, Belgium - Grand Place;50.8468;4.3525
+address;latitude;longitude;client_name;client_type;last_visit;revenue;preferred_contact_time;priority
+Centrum Handlowe Manufaktura, Łódź;51.779075;19.444687;Adam Kowalski;Sklep wielkopowierzchniowy;2024-01-15;45000;9:00-12:00;High
+Galeria Mokotów, Warszawa;52.178889;21.000833;Marta Nowak;Centrum handlowe;2024-02-01;38000;10:00-16:00;High
+Focus Mall, Bydgoszcz;53.121389;18.010833;Tomasz Wiśniewski;Centrum handlowe;2024-01-20;25000;8:00-14:00;Medium
+Galeria Bałtycka, Gdańsk;54.381111;18.576389;Katarzyna Lewandowska;Centrum handlowe;2024-02-10;42000;11:00-15:00;High
+Ikea Retail, Poznań;52.393056;16.848889;Piotr Zieliński;Sklep wielkopowierzchniowy;2024-01-05;55000;8:00-10:00;High
+Bonarka City Center, Kraków;50.036389;19.950833;Magdalena Szymańska;Centrum handlowe;2024-02-05;36000;9:00-13:00;Medium
+Pasaż Grunwaldzki, Wrocław;51.109722;17.058611;Adam Wojciechowski;Centrum handlowe;2024-01-25;28000;10:00-14:00;Medium
+Galeria Pomorska, Bydgoszcz;53.121944;18.011667;Monika Kamińska;Centrum handlowe;2024-02-15;22000;12:00-16:00;Low
+Castorama, Lublin;51.250833;22.571389;Krzysztof Dąbrowski;Sklep budowlany;2024-01-10;48000;8:00-12:00;High
+Factory Outlet, Warszawa;52.242222;21.028889;Agnieszka Jankowska;Outlet;2024-02-20;15000;11:00-15:00;Low
+Decathlon, Katowice;50.290556;18.975556;Barbara Kwiatkowska;Sklep sportowy;2024-01-30;32000;9:00-13:00;Medium
+Media Markt, Białystok;53.130833;23.155833;Robert Kaczmarek;Elektronika;2024-02-12;41000;10:00-14:00;High
+Galeria Echo, Kielce;50.878056;20.633611;Ewa Michalska;Centrum handlowe;2024-01-18;26000;8:00-12:00;Medium
+Leroy Merlin, Gdynia;54.479722;18.525833;Marek Pawlak;Sklep budowlany;2024-02-08;44000;9:00-13:00;High
+Posnania, Poznań;52.401389;16.953056;Joanna Adamczyk;Centrum handlowe;2024-01-22;39000;10:00-14:00;Medium
+OBI, Szczecin;53.436944;14.538056;Marcin Wójcik;Sklep budowlany;2024-02-17;29000;11:00-15:00;Medium
+Galeria Victoria, Wałbrzych;50.783333;16.283333;Karolina Sikora;Centrum handlowe;2024-01-12;18000;8:00-12:00;Low
+Galeria Rzeszów;50.041667;22.003056;Michał Grabowski;Centrum handlowe;2024-02-03;33000;9:00-13:00;Medium
+Alfa Centrum, Olsztyn;53.770833;20.485833;Aleksandra Witkowska;Centrum handlowe;2024-01-28;24000;10:00-14:00;Low
+Silesia City Center, Katowice;50.250833;19.033611;Paweł Mazur;Centrum handlowe;2024-02-14;47000;11:00-15:00;High
+Auchan, Piaseczno;52.083333;21.016667;Marta Kołodziej;Hipermarket;2024-01-08;31000;8:00-12:00;Medium
+Galeria Katowicka;50.258333;19.025000;Łukasz Sawicki;Centrum handlowe;2024-02-19;37000;9:00-13:00;Medium
+Avenida, Poznań;52.393889;16.934167;Natalia Górska;Centrum handlowe;2024-01-16;43000;10:00-14:00;High
+Galeria Młociny, Warszawa;52.290833;20.930833;Daniel Urbaniak;Centrum handlowe;2024-02-07;35000;11:00-15:00;Medium
+Atrium Copernicus, Toruń;53.016667;18.600000;Weronika Tomaszewska;Centrum handlowe;2024-01-24;27000;8:00-12:00;Low
+Ferio, Konin;52.233333;18.250000;Kamil Zalewski;Centrum handlowe;2024-02-16;19000;9:00-13:00;Low
+Media Expert, Radom;51.403611;21.156944;Izabela Chmielewska;Elektronika;2024-01-14;34000;10:00-14:00;Medium
+Galeria Jurajska, Częstochowa;50.816667;19.116667;Artur Wojciechowski;Centrum handlowe;2024-02-02;46000;11:00-15:00;High
+Carrefour, Gdańsk;54.348889;18.653056;Sandra Nowakowska;Hipermarket;2024-01-26;30000;8:00-12:00;Medium
+RTV Euro AGD, Bielsko-Biała;49.822222;19.058333;Dominik Kowalczyk;Elektronika;2024-02-09;40000;9:00-13:00;High

@@ -14,20 +14,20 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 # Inicjalizacja stanu sesji
 if 'messages' not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "Witaj! Jestem Twoim asystentem podróży i ekspertem od lokalizacji w Europie. Pomogę Ci w:\n\n"
-         "🗺️ Analizie lokalizacji:\n"
-         "- Szczegółowe informacje o wybranych miejscach\n"
-         "- Pobliskie atrakcje i ukryte perełki\n"
-         "- Lokalne zwyczaje i kultura\n\n"
-         "🚗 Planowaniu podróży:\n"
-         "- Optymalne trasy między lokalizacjami\n"
-         "- Różne opcje transportu (komunikacja miejska, samochód, rower)\n"
-         "- Szacowany czas i koszty podróży\n\n"
-         "💡 Praktycznych poradach:\n"
-         "- Najlepszy czas na zwiedzanie\n"
-         "- Informacje o parkingach i komunikacji\n"
-         "- Lokalne wydarzenia i festiwale\n\n"
-         "Kliknij na mapie (maksymalnie 5 lokalizacji), a pomogę Ci zaplanować najlepszą trasę i dostarczę przydatnych informacji. W czym mogę Ci pomóc?"}
+        {"role": "assistant", "content": "Witaj! Jestem asystentem do analizy tras handlowych. Pomogę Ci w:\n\n"
+         "📊 Analizie klientów:\n"
+         "- Szczegółowe informacje o punktach handlowych\n"
+         "- Historia zamówień i przychody\n"
+         "- Priorytety i preferowane godziny kontaktu\n\n"
+         "🚗 Planowaniu tras:\n"
+         "- Optymalne trasy między punktami\n"
+         "- Szacowany czas przejazdu\n"
+         "- Sugestie kolejności wizyt\n\n"
+         "💡 Analizie biznesowej:\n"
+         "- Priorytety klientów\n"
+         "- Potencjał sprzedażowy\n"
+         "- Rekomendacje działań\n\n"
+         "Wybierz punkty na mapie (maksymalnie 5 lokalizacji), a pomogę Ci zaplanować optymalną trasę i dostarczę przydatnych informacji biznesowych. W czym mogę Ci pomóc?"}
     ]
 if 'selected_locations' not in st.session_state:
     st.session_state.selected_locations = []
@@ -49,44 +49,44 @@ def get_chatgpt_response(prompt, selected_locations) -> str:
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": """You are an experienced travel and location analysis assistant specializing in European destinations. Your tasks include:
+                {"role": "system", "content": """You are an experienced sales route and business analysis assistant. Your tasks include:
 
-1. Location Analysis:
-- Analyze selected locations and their surroundings
-- Provide detailed information about points of interest
-- Suggest nearby attractions and hidden gems
-- Compare different locations in terms of tourist appeal
-- Inform about local climate and best times to visit
+1. Client Analysis:
+- Analyze client types and their business potential
+- Review purchase history and revenue data
+- Assess client priorities and contact preferences
+- Provide insights about client's business profile
+- Suggest potential upselling opportunities
 
-2. Travel Planning:
+2. Route Planning:
 - Recommend optimal routes between selected locations
-- Suggest transportation options (public transport, car, bike, walking)
-- Estimate travel times and costs
-- Provide tips for the most efficient and scenic routes
-- Alert about potential travel disruptions or challenges
+- Consider client priority levels when planning
+- Estimate travel times and distances
+- Suggest best visit order based on client preferences
+- Account for preferred contact hours
 
-3. Local Knowledge:
-- Share insights about local culture and customs
-- Recommend local cuisine and restaurants
-- Provide information about accommodation options
-- Alert about safety considerations
-- Mention language considerations and useful phrases
+3. Business Intelligence:
+- Analyze revenue patterns
+- Identify high-priority clients
+- Suggest sales opportunities
+- Provide competitive insights
+- Recommend business development strategies
 
 4. Practical Advice:
-- Suggest best times for visiting specific locations
-- Provide parking information when relevant
-- Mention accessibility considerations
-- Give tips about local events and festivals
-- Share practical tips about local transportation systems
+- Suggest best times for client visits
+- Note any specific client requirements
+- Provide tips for efficient meetings
+- Calculate potential route revenues
+- Highlight key business opportunities
 
 When multiple locations are selected, focus on:
-- Finding logical routes between them
-- Suggesting optimal visit order
-- Estimating total journey time
-- Providing multi-stop itinerary suggestions
-- Highlighting potential connections and relationships between locations
+- Optimizing route efficiency
+- Prioritizing high-value clients
+- Maximizing sales potential
+- Creating time-efficient schedules
+- Considering preferred contact hours
 
-Communicate in a friendly, conversational tone and always prioritize practical, actionable advice."""},
+Communicate in a professional, business-focused tone and prioritize actionable insights that can increase sales effectiveness."""},
                 {"role": "user", "content": context + prompt}
             ]
         )
